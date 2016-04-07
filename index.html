@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>reveal.js – The HTML Presentation Framework</title>
+		<title>Grainv1 Stream Cipher Implementation</title>
 
 		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
 		<meta name="author" content="Hakim El Hattab">
@@ -15,7 +15,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+		<link rel="stylesheet" href="css/theme/solarized.css" id="theme">
 
 		<!-- Code syntax highlighting -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -63,6 +63,12 @@
 						<img src="images/flow.jpg"/>
 					</section>
 					<section>
+						<h2>Asymmetric Key Cipher</h2>
+						<img src="images/asymcipher.jpg"/>
+						<p>An encryption system in which the sender uses a public key to encrypt the message and receiver uses a private key to decrypt the message.</p>
+						<!--to be kept in mind that the private key needs to be shared between the send and receiver in a secure way-->
+					</section>
+					<section>
 						<h2>Symmetric Key Cipher</h2>
 						<img src="images/symcipher.gif"/>
 						<p>An encryption system in which the sender and receiver of a message share a single, common key that is used to encrypt and decrypt the message.</p>
@@ -70,28 +76,136 @@
 					</section>
 					<section>
 						<h2>Block Cipher</h2>
-						<p>An encryption system in which the sender and receiver of a message share a single, common key that is used to encrypt and decrypt the message.</p>
+						
 					</section>
 					<section>
 						<h2>Stream Cipher</h2>
-						<p>An encryption system in which the sender and receiver of a message share a single, common key that is used to encrypt and decrypt the message.</p>
+						
 					</section>
-					<section>
-						<h2>Asymmetric Key Cipher</h2>
-						<p>That's it, time to go back up.</p>
-						<br>
-						<a href="#/2">
-							<img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Up arrow" style="transform: rotate(180deg); -webkit-transform: rotate(180deg);">
-						</a>
-					</section>
+					
 
 				</section>
 
-				<section>
-					<h2>Slides</h2>
-					<p>
-						Not a coder? Not a problem. There's a fully-featured visual editor for authoring these, try it out at <a href="http://slides.com" target="_blank">http://slides.com</a>.
-					</p>
+				<section >
+					<section>
+						<h2>Grain-v1:Motivation</h2>
+						<p style="font-size:10px;">
+							<ul style="font-size:30px;">
+							<li>There is a need for cryptographic primitives that have very low hardware complexity.</li>
+							<li>An RFID tag is a typical example of a product where the amount of memory and power is very limited.</li>
+							<li>Forging an RFID tag can have devastating consequences if the tag is used e.g. in electronic payments and hence, there is a need for cryptographic primitives implemented in these tags.</li>
+							<li>Grain is a stream cipher primitive that is designed to be very easy and small to implement in hardware.</li>
+							</ul>
+						</p>
+					</section>
+					<section>
+						<h2>Design Specification</h2>
+						<p style="font-size:35px;">
+							Grain cipher consists of 3 main building blocks:
+							<ul style="font-size:30px;">
+								<li>LFSR(Linear Feedback Shift Register):</li>
+								A Shift register whose input is a linear function of its previous state
+								The LFSR guarantees a minimum period for the keystream and it also provides balancedness in the output.
+								<li>NFSR(Non-linear Feedback Shift Register):</li>
+								Shift register with non-linear function of previous state
+								The NFSR, together with a nonlinear output function introduces nonlinearity to the cipher.
+								<li>Output function</li>
+							</ul>	
+						</p>
+					</section>
+					<section>
+						<h2>LFSR</h2>
+						<p style="font-size:35px;">
+							<img src="images/lfsr.gif"/>
+							<ul style="font-size:30px;">
+								<li>Content of LFSR denoted by S<sub>i</sub>, S<sub>i+1</sub>, . . . , S<sub>i+79</sub></li>
+
+								<li>Feedback polynomial:</li>
+								<img src="images/image2.png"/>
+								<li>Equivalent update function:</li>
+								<img src="images/image3.png"/>
+							</ul>	
+						</p>
+					</section>
+					<section>
+						<h2>NFSR</h2>
+						<p style="font-size:35px;">
+							<ul style="font-size:30px;">
+								<li>Content of NFSR denoted by b<sub>i</sub>, b<sub>i+1</sub>, . . . , b<sub>i+79</sub></li>
+
+								<li>Feedback polynomial:</li>
+								<img src="images/image4.png"/>
+								<li>Equivalent update function:</li>
+								<img src="images/image5.png"/>
+							</ul>	
+						</p>
+					</section>
+					<section>
+						<h2>Output function</h2>
+						<p style="font-size:35px;">
+							<ul style="font-size:30px;">
+								<li>It is filter function masked with some bits of NFSR.</li>
+								<li>This filter function is chosen to be balanced, correlation immune of the first order and has algebraic degree 3.</li>
+								<li>The filter function is defined as</li>
+								<img src="images/image7.png"/><br>
+								where the variables x<sub>0</sub>,x<sub>1</sub>, x<sub>2</sub>, x<sub>3</sub> and <sub>x4</sub> correspond to the tap positions s<sub>i+3</sub>, s<sub>i+25</sub>, s<sub>i+46</sub>, s<sub>i+64</sub> and b<sub>i+63</sub> respectively.
+								<li>Equivalent update function:</li>
+								<img src="images/image6.png"/><br>
+								where A={1,2,4,10,31,43,56}
+							</ul>	
+						</p>
+					</section>
+					<section>
+						<h2>Key Initialisation</h2>
+						<p style="font-size:35px;">
+						<img src="images/image8.png"/>
+							<ul style="font-size:30px;">
+								<li>The goal is to scramble the contents of the shift registers before the running key is generated.</li>
+								
+							</ul>	
+						</p>
+					</section>
+					<section>
+							<ul style="font-size:30px;">
+								<li>Let the bits of the key, k, be denoted ki, 0 <= i <= 79 and the bits of the IV be denoted IVi, 0 <= i <= 63.</li>
+								<li>First load the NFSR with the key bits, bi = ki, 0 <= i <= 79, then load the first 64 bits of the LFSR with the IV, si = IVi, 0 <= i <= 63. The remaining bits of the LFSR are filled with ones, si = 1, 64 <= i <= 79.</li>
+								<li>Then the cipher is clocked 160 times without producing any running key. Instead the output function is fed back and xored with the input, both to the LFSR and to the NFSR.</li>
+							</ul>	
+						</p>
+					</section>
+					<section>
+						<h2>Design Criteria</h2>
+						<p style="font-size:35px;">
+							<ul style="font-size:30px;">
+								<li>The security requirements correspond to a computational complexity of 280, equivalent to an exhaustive key search.</li>
+								<li>It is well known that an LFSR with primitive feedback polynomial of degree d produces an output with period 2<sup style="font-size: 20px;">d</sup> −1.</li>
+								<li>Because of the NFSR and the fact that the input to this is masked with the output of the LFSR the exact period will depend on the key and the IV used.</li>
+								<li>The input to the NFSR is masked with the output of the LFSR in order to make sure that the NFSR state is balanced. </li>
+								
+							</ul>	
+						</p>
+					</section>
+					<section>
+						<h2>Throughput Rate</h2>
+						<p style="font-size:35px;">
+							<ul style="font-size:30px;">
+								<li>The cipher  outputs 1 bit/clock.</li>
+								<li>It is possible to increase the speed of the cipher at the expense of more hardware which can very easily be done by just implementing the feedback functions, f(x) and g(x) and the output function several times.</li>
+								<li>The last 15 bits of the shift registers are not used in the feedback functions or in the input to the filter function. This allows the speed to be easily multiplied by up to 16.</li>
+							</ul>
+						</p>	
+					</section>
+					<section>
+						<p>
+							<img src="images/image9.tif"/>
+							<ul style="font-size:30px;">			
+								
+								<li>An example of the implementation when the speed is doubled.</li>	
+								<li>Since, in the key initialization, the cipher is clocked 160 times, the possibilities to increase the speed is limited to factors 16 that are divisible by 160.</li>
+								
+							</ul>	
+						</p>
+					</section>
 				</section>
 
 				<section>
