@@ -43,7 +43,12 @@
 				<section>
 					<h3>Stream Cipher - Grain V1</h3>
 					<h3>Analysis and Implementation</h3>
-					<img src="images/crypto-key.jpg"/>
+					<img width="600" height="300"src="images/crypto-key.jpg"/>
+					<p font-size:20px;>
+						Vaibhav Raj Gupta(13114068)<br>
+						Aditya Prakash(13114002)<br>
+						Akshay Patni(13114004)
+					</p>
 					
 				</section>
 
@@ -100,10 +105,10 @@
 						<h2>Grain-v1:Motivation</h2>
 						<p style="font-size:10px;">
 							<ul style="font-size:30px;">
-							<li>There is a need for cryptographic primitives that have very low hardware complexity.</li>
+							<li>Grain is a stream cipher primitive that is designed to be very easy and small to implement in hardware.</li>
 							<li>An RFID tag is a typical example of a product where the amount of memory and power is very limited.</li>
 							<li>Forging an RFID tag can have devastating consequences if the tag is used e.g. in electronic payments and hence, there is a need for cryptographic primitives implemented in these tags.</li>
-							<li>Grain is a stream cipher primitive that is designed to be very easy and small to implement in hardware.</li>
+							
 							</ul>
 						</p>
 					</section>
@@ -165,7 +170,7 @@
 						</p>
 					</section>
 					<section>
-						<h2>Key Initialisation</h2>
+						<h2>Key Initialization</h2>
 						<p style="font-size:35px;">
 						<img src="images/image8.png"/>
 							<ul style="font-size:30px;">
@@ -186,7 +191,7 @@
 						<h2>Design Criteria</h2>
 						<p style="font-size:35px;">
 							<ul style="font-size:30px;">
-								<li>The security requirements correspond to a computational complexity of 280, equivalent to an exhaustive key search.</li>
+								<li>The security requirements correspond to a computational complexity of 2<sup style="font-size: 20px;">80</sup>, equivalent to an exhaustive key search.</li>
 								<li>It is well known that an LFSR with primitive feedback polynomial of degree d produces an output with period 2<sup style="font-size: 20px;">d</sup> −1.</li>
 								<li>Because of the NFSR and the fact that the input to this is masked with the output of the LFSR the exact period will depend on the key and the IV used.</li>
 								<li>The input to the NFSR is masked with the output of the LFSR in order to make sure that the NFSR state is balanced. </li>
@@ -249,86 +254,88 @@
 							</ul>
 					</section>				
 				</section>
-
 				<section>
-					<h2>Cryptanalysis</h2>
-					<img  height = "200" width="400"src="images/cryptan.png"/>
-					<p>
-						Resistance against all known cryptanalytic attacks is the most 
-						important property of a new cipher. There should be no attack faster 
-							than exhaustive key search.
-					</p>
-				</section>
+					<section>
+						<h2>Cryptanalysis</h2>
+						<img  height = "200" width="400"src="images/cryptan.png"/>
+						<p>
+							Resistance against all known cryptanalytic attacks is the most 
+							important property of a new cipher. There should be no attack faster 
+								than exhaustive key search.
+						</p>
+					</section>
 
-				<section>
-					<h3>Correlations</h3>
-					<p>
-						<ul style="font-size:30px;">				
-						
-							<li>Bits in LFSR and NFSR are balanced</li>	
-							<li>g(x) is a balanced function, therefore bits in the NFSR are uncorrelated to the 
-							LFSR bits</li>
-							<li>h(x) is correlation immune of first order</li>
-							<li>As one input to h(x) comes from NFSR and as h(x) is XORed with 7 state bits of
-							NFSR, correlations of output of generator to sums of LFSR bits will be small 
-							enough to prevent the attacks on grain cipher</li>
+					<section>
+						<h3>Correlations</h3>
+						<p>
+							<ul style="font-size:30px;">				
 							
-						</ul>	
-					</p>
+								<li>Bits in LFSR and NFSR are balanced</li>	
+								<li>g(x) is a balanced function, therefore bits in the NFSR are uncorrelated to the 
+								LFSR bits</li>
+								<li>h(x) is correlation immune of first order</li>
+								<li>As one input to h(x) comes from NFSR and as h(x) is XORed with 7 state bits of
+								NFSR, correlations of output of generator to sums of LFSR bits will be small 
+								enough to prevent the attacks on grain cipher</li>
+								
+							</ul>	
+						</p>
+					</section>
+					<section>
+						<h3>Algebraic Attack</h3>
+						<p>
+							<ul style="font-size:30px;">
+							<li>A filter generator alone with output function h(x) of degree only three
+							would be very vulnerable to algebraic attacks.
+							<br>
+							<li>The filter function h(x) has one input coming from the NFSR and the 
+							output function is xored with a linear combination of NFSR-state bits. </li>
+							<li>So the algebraic degrees of the output bits are large in general, and 
+							varying in time. This will defeat algebraic attacks.</li>
+						</p>
+					</section>
+
+					<section>
+						<h3>Chosen-IV Attack</h3>
+						<p style="font-size:30px;">
+							The Hamming weight of the differences in the full initial 160-bit state 
+							for two IV’s after initialization is close to random. This should prevent chosen-IV attacks.
+					</section>
+
+					<section>
+						<h3>Time/Memory/Data Tradeoff Attack</h3>
+						<p style="font-size:30px;">
+							<ul>
+								<li>Cost of time/memory/data tradeoff attack on stream ciphers is O
+							(2^n/2 ) [where n is the number of inner states of the stream cipher].</li>
+
+								<li>This function does not become linear in the remaining variables by 
+							fixing less than 3 of its 5 variables. Hence, the sampling resistance of h(x) is large. </li>
+							</ul>
+
+						</p>
+					</section>
+
+					<section>
+						<h3>Fault Attack</h3>
+						<p style="font-size:30px; align: left;">
+							<li>The strongest attacks conceivable on any cipher, are fault attacks.
+
+						The attacker can apply some bit flipping faults to one of the two 
+							feedback registers at his will.</li>
+							<li>He can reset the device and then apply another randomly chosen 
+							fault.Information may be extracted about LFSR state bits if some single bit 
+							flipping is induced in LFSR.</li>
+							<li>However, Faults in NFSR propagate nonlinearly and their evolution 
+							will be harder to predict. Thus, a fault attack on the NFSR seems more difficult.</li>
+						</p>
+					</section>
 				</section>
-				<section>
-					<h3>Algebraic Attack</h3>
-					<p style="font-size:30px;">
-						A filter generator alone with output function h(x) of degree only three
-						would be very vulnerable to algebraic attacks.
-						<br>
-						The filter function h(x) has one input coming from the NFSR and the 
-						output function is xored with a linear combination of NFSR-state bits. 
-						So the algebraic degrees of the output bits are large in general, and 
-						varying in time. This will defeat algebraic attacks.
-					</p>
-				</section>
-
-				<section>
-					<h3>Chosen-IV Attack</h3>
-					<p style="font-size:30px;">
-						The Hamming weight of the differences in the full initial 160-bit state 
-						for two IV’s after initialization is close to random. This should prevent chosen-IV attacks.
-				</section>
-
-				<section>
-					<h3>Time/Memory/Data Tradeoff Attack</h3>
-					<p style="font-size:30px;">
-						Cost of time/memory/data tradeoff attack on stream ciphers is O
-						(2^n/2 ) [where n is the number of inner states of the stream cipher].
-
-						This function does not become linear in the remaining variables by 
-						fixing less than 3 of its 5 variables. Hence, the sampling resistance of h(x) is large. 
-					</p>
-				</section>
-
-				<section>
-					<h3>Fault Attack</h3>
-					<p style="font-size:30px;">
-						The strongest attacks conceivable on any cipher, are fault attacks.
-
-						<br>The attacker can apply some bit flipping faults to one of the two 
-						feedback registers at his will.
-						<br>He can reset the device and then apply another randomly chosen 
-						fault.
-						<br>Information may be extracted about LFSR state bits if some single bit 
-						flipping is induced in LFSR.
-						<br>However, Faults in NFSR propagate nonlinearly and their evolution 
-						will be harder to predict.
-						<br>Thus, a fault attack on the NFSR seems more difficult.
-					</p>
-				</section>
-
 				<section>
 					<h3>Comparison with other Hardware Ciphers</h3>
 					<img src="images/comp.png"/>
 					<p >
-						<ul style="font-size:30px;">
+						<ul style="font-size:30px;align: left;">
 							<li>
 								Grain provides a higher security than several other well known
 								ciphers intended to be used in hardware applications.Well known 
@@ -342,7 +349,16 @@
 						</ul> 
 					</p>
 				</section>
-
+				<section>
+					<h3>References</h3>
+					<p>
+						<ul style="font-size:30px;align:left;">
+							<li>http://www.ecrypt.eu.org/stream/p3ciphers/grain/Grain_p3.pdf</li>
+							<li>http://www.quotium.com/resources/importance-cryptography/</li>
+							<li>http://www.math.ucdenver.edu/~wcherowi/courses/m5410/m5410fsr.html</li>
+						</ul>
+					</p>
+				</section>
 				<section data-background="images/thank.jpg">
 					<p style="font-size:80px;color:orange;font-weight: bold;"><br><br><br><br><br>	Thank You</p>
 				</section>
